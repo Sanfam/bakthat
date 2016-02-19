@@ -1,7 +1,9 @@
 # -*- encoding: utf-8 -*-
 import logging
 import tempfile
-import sh
+#import sh
+#replace sh with pbs
+import pbs as sh
 import os
 import shutil
 import time

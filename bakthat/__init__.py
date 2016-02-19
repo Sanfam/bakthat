@@ -35,6 +35,7 @@ app = aaargh.App(description="Compress, encrypt and upload files directly to Ama
 
 log = logging.getLogger("bakthat")
 
+start_time = datetime(1970,1,1)
 
 class BakthatFilter(logging.Filter):
     def filter(self, rec):
@@ -92,7 +93,7 @@ def delete_older_than(filename, interval, profile="default", config=CONFIG_FILE,
 
     deleted = []
 
-    backup_date_filter = int(datetime.utcnow().strftime("%s")) - interval_seconds
+    backup_date_filter = int((datetime.utcnow() - start_time).total_seconds()) - interval_seconds
     for backup in Backups.search(filename, destination, older_than=backup_date_filter, profile=profile, config=config):
         real_key = backup.stored_filename
         log.info("Deleting {0}".format(real_key))
@@ -162,7 +163,7 @@ def rotate_backups(filename, destination=None, profile="default", config=CONFIG_
     to_delete = grandfatherson.to_delete(backups_date, **rotate_kwargs)
     for delete_date in to_delete:
         try:
-            backup_date = int(delete_date.strftime("%s"))
+            backup_date = int((delete_date - start_time).total_seconds())
             backup = Backups.search(filename, destination, backup_date=backup_date, profile=profile, config=config).get()
 
             if backup:
@@ -276,7 +277,7 @@ def backup(filename=os.getcwd(), destination=None, profile="default", config=CON
     date_component = now.strftime("%Y%m%d%H%M%S")
     stored_filename = backup_file_fmt.format(arcname, date_component)
 
-    backup_date = int(now.strftime("%s"))
+    backup_date = int((now - start_time).total_seconds())
     backup_data = dict(filename=kwargs.get("custom_filename", arcname),
                        backup_date=backup_date,
                        last_updated=backup_date,
